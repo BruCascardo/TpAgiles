@@ -1,0 +1,9 @@
+node_modules/
+.features-gen/
+test-results/
+playwright-report/
+coverage/
+dist/
+.env
+.env.local
+.env.*.local

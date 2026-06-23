@@ -1,0 +1,22 @@
+{
+  "name": "tp-ahorcado-pruebas",
+  "version": "1.0.0",
+  "description": "Juego del Ahorcado siguiendo el proceso ATDD y Unit Testing con IA",
+  "main": "src/ui/index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest",
+    "at": "bddgen && playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "playwright-bdd": "^9.2.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
+  }
+}
