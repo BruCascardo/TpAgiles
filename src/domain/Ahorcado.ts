@@ -15,6 +15,6 @@ export class Ahorcado {
 
   vidas(): number {
     // Se implementará a partir de los tests unitarios
-    return 6;
+    return 0;
   }
 }
