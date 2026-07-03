@@ -10,9 +10,8 @@ export class Ahorcado {
   }
 
   palabraEnmascarada(): string {
-    // Se implementará a partir de los tests unitarios
-    return "";
-  }
+  return this.palabraSecreta.split('').map(() => '_').join(' ');
+}
 
   vidas(): number {
     // Se implementará a partir de los tests unitarios
