@@ -78,4 +78,13 @@ it("no penaliza con una vida extra si se repite una letra incorrecta, y limpia e
   expect(juego.vidas()).toBe(4);
   expect(juego.mensajeInformativo()).toBe("");
 });
+
+it("no resta vidas y avisa cuando se ingresa el numero 1", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("1");
+
+  expect(juego.vidas()).toBe(6);
+  expect(juego.mensajeInformativo()).toBe("Entrada inválida");
+});
+
 });
