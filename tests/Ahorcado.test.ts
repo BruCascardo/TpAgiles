@@ -66,4 +66,16 @@ it("informa cuando se ingresa una letra previamente adivinada", () => {
   expect(juego.mensajeInformativo()).toBe("Ya intentaste esa letra");
 });
 
+it("no penaliza con una vida extra si se repite una letra incorrecta, y limpia el aviso al intentar una nueva", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("E"); // Falla: 5 vidas
+  juego.adivinar("E"); // Repite: 5 vidas, muestra aviso
+
+  expect(juego.vidas()).toBe(5);
+  expect(juego.mensajeInformativo()).toBe("Ya intentaste esa letra");
+
+  juego.adivinar("I"); // Nueva falla: 4 vidas, limpia el aviso anterior
+  expect(juego.vidas()).toBe(4);
+  expect(juego.mensajeInformativo()).toBe("");
+});
 });
