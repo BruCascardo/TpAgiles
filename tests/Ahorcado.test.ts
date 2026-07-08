@@ -59,4 +59,11 @@ it("revela correctamente cualquier palabra al perder (ej: MESA)", () => {
   expect(juego.palabraEnmascarada()).toBe("M E S A");
 });
 
+it("informa cuando se ingresa una letra previamente adivinada", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("A");
+  juego.adivinar("A");
+  expect(juego.mensajeInformativo()).toBe("Ya intentaste esa letra");
+});
+
 });
