@@ -28,5 +28,10 @@ export class Ahorcado {
   vidas(): number {
     return 6 - this.errores; // Calculamos las vidas restantes
   }
+
+  // Agregar este método a la clase Ahorcado
+  haGanado(): boolean {
+    return !this.palabraEnmascarada().includes('_');
+  }
   
 }
