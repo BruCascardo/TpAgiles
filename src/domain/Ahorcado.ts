@@ -21,4 +21,6 @@ export class Ahorcado {
     // Se implementará a partir de los tests unitarios
     return 6;
   }
+
+  
 }

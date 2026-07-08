@@ -12,6 +12,13 @@ describe("Ahorcado", () => {
   expect(juego.vidas()).toBe(6);
 });
 
+it("descuenta una vida cuando se adivina una letra incorrecta", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("E");
+  expect(juego.vidas()).toBe(5);
+});
+
+
 it("revela la letra acertada en la palabra enmascarada", () => {
   const juego = new Ahorcado("GATO");
   juego.adivinar("A");
