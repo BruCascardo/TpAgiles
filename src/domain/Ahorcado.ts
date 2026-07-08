@@ -22,10 +22,10 @@ export class Ahorcado {
   adivinar(letra: string): void {
     const letraMayus = letra.toUpperCase();
 
-    if (letra === "1") {
-    this.aviso = "Entrada inválida";
-    return;
-  }
+    if (!/^[a-zA-Z]$/.test(letra)) {
+        this.aviso = "Entrada inválida";
+        return;
+      }
   
     if (this.adivinadas.has(letraMayus)) {
       this.aviso = "Ya intentaste esa letra";
