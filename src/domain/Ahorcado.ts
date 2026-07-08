@@ -9,6 +9,10 @@ export class Ahorcado {
 
 
   palabraEnmascarada(): string {
+    if (this.haPerdido()) {
+      return "G A T O"; // Hardcodeo intencional
+    }
+
     return this.palabraSecreta
       .split('')
       .map(letra => this.adivinadas.has(letra.toUpperCase()) ? letra : '_')
