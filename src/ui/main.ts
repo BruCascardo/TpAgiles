@@ -1,7 +1,7 @@
 import { Ahorcado } from "../domain/Ahorcado";
 
 export function mountApp(container: HTMLElement, juego: Ahorcado): void {
-  let mensaje = "";
+  let mensaje = juego.mensajeInformativo();
   if (juego.haGanado()) mensaje = "GANASTE";
   if (juego.haPerdido()) mensaje = "PERDISTE";
 
