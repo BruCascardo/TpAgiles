@@ -47,4 +47,10 @@ it("detecta que el jugador perdio al quedarse sin vidas", () => {
   expect(juego.haPerdido()).toBe(true);
 });
 
+it("revela la palabra GATO cuando el jugador pierde", () => {
+  const juego = new Ahorcado("GATO");
+  ["Z", "X", "C", "V", "B", "N"].forEach(letra => juego.adivinar(letra));
+  expect(juego.palabraEnmascarada()).toBe("G A T O");
+});
+
 });
