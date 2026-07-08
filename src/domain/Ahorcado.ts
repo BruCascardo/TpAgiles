@@ -1,14 +1,12 @@
 export class Ahorcado {
   private palabraSecreta: string;
   private adivinadas: Set<string> = new Set();
+  private errores: number = 0; // Agregamos contador de errores
 
   constructor(palabra: string) {
     this.palabraSecreta = palabra;
   }
 
-  adivinar(letra: string): void {
-    this.adivinadas.add(letra.toUpperCase());
-  }
 
   palabraEnmascarada(): string {
     return this.palabraSecreta
@@ -17,10 +15,18 @@ export class Ahorcado {
       .join(' ');
   }
 
-  vidas(): number {
-    // Se implementará a partir de los tests unitarios
-    return 6;
+  adivinar(letra: string): void {
+    const letraMayus = letra.toUpperCase();
+    this.adivinadas.add(letraMayus);
+
+    // Si la palabra no incluye la letra, sumamos un error
+    if (!this.palabraSecreta.includes(letraMayus)) {
+      this.errores++;
+    }
   }
 
+  vidas(): number {
+    return 6 - this.errores; // Calculamos las vidas restantes
+  }
   
 }
