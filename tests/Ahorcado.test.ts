@@ -41,4 +41,10 @@ it("detecta que el jugador ha ganado cuando adivina todas las letras", () => {
   expect(juego.haGanado()).toBe(true); // Al adivinar todas, gana
 });
 
+it("detecta que el jugador perdio al quedarse sin vidas", () => {
+  const juego = new Ahorcado("GATO");
+  ["Z", "X", "C", "V", "B", "N"].forEach(letra => juego.adivinar(letra));
+  expect(juego.haPerdido()).toBe(true);
+});
+
 });
