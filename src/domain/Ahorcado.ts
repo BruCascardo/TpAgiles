@@ -10,7 +10,7 @@ export class Ahorcado {
 
   palabraEnmascarada(): string {
     if (this.haPerdido()) {
-      return "G A T O"; // Hardcodeo intencional
+      return this.palabraSecreta.split('').join(' '); // Logica real
     }
 
     return this.palabraSecreta
