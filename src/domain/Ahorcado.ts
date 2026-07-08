@@ -34,4 +34,8 @@ export class Ahorcado {
     return !this.palabraEnmascarada().includes('_');
   }
   
+  haPerdido(): boolean {
+  return this.vidas() === 0;
+}
+  
 }
