@@ -31,4 +31,14 @@ it("no modifica la palabra enmascarada si la letra es incorrecta", () => {
   expect(juego.palabraEnmascarada()).toBe("_ _ _ _");
 });
 
+it("detecta que el jugador ha ganado cuando adivina todas las letras", () => {
+  const juego = new Ahorcado("GATO");
+  expect(juego.haGanado()).toBe(false); // Al principio no ganó
+  juego.adivinar("G");
+  juego.adivinar("A");
+  juego.adivinar("T");
+  juego.adivinar("O");
+  expect(juego.haGanado()).toBe(true); // Al adivinar todas, gana
+});
+
 });
