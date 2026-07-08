@@ -1,52 +1,51 @@
 export class Ahorcado {
   private palabraSecreta: string;
   private adivinadas: Set<string> = new Set();
-  private errores: number = 0; // Agregamos contador de errores
+  private errores: number = 0;
   private aviso: string = "";
 
   constructor(palabra: string) {
     this.palabraSecreta = palabra;
   }
 
-
   palabraEnmascarada(): string {
     if (this.haPerdido()) {
-      return this.palabraSecreta.split('').join(' '); // Logica real
+      return this.palabraSecreta.split("").join(" ");
     }
 
     return this.palabraSecreta
-      .split('')
-      .map(letra => this.adivinadas.has(letra.toUpperCase()) ? letra : '_')
-      .join(' ');
+      .split("")
+      .map((letra) => (this.adivinadas.has(letra.toUpperCase()) ? letra : "_"))
+      .join(" ");
   }
 
   adivinar(letra: string): void {
-    
     const letraMayus = letra.toUpperCase();
+    if (this.adivinadas.has(letraMayus)) {
+      this.aviso = "Ya intentaste esa letra";
+      return;
+    }
+
+    this.aviso = "";
     this.adivinadas.add(letraMayus);
-    // Si la palabra no incluye la letra, sumamos un error
     if (!this.palabraSecreta.includes(letraMayus)) {
       this.errores++;
     }
-
-    
   }
 
   vidas(): number {
-    return 6 - this.errores; // Calculamos las vidas restantes
+    return 6 - this.errores;
   }
 
-  // Agregar este método a la clase Ahorcado
   haGanado(): boolean {
-    return !this.palabraEnmascarada().includes('_');
+    return !this.palabraEnmascarada().includes("_");
   }
-  
+
   haPerdido(): boolean {
-  return this.vidas() === 0;
-}
-
-mensajeInformativo(): string {
-    return "Ya intentaste esa letra";
+    return this.vidas() === 0;
   }
 
+  mensajeInformativo(): string {
+    return this.aviso;
+  }
 }
