@@ -20,17 +20,23 @@ export class Ahorcado {
       .join(' ');
   }
 
-  adivinar(letra: string): void {
-    
-    const letraMayus = letra.toUpperCase();
-    this.adivinadas.add(letraMayus);
-    // Si la palabra no incluye la letra, sumamos un error
-    if (!this.palabraSecreta.includes(letraMayus)) {
-      this.errores++;
-    }
+adivinar(letra: string): void {
+  const letraMayus = letra.toUpperCase();
 
-    
+  // Si ya la intentó, guardamos el aviso y cortamos acá (no restamos vida ni agregamos nada)
+  if (this.adivinadas.has(letraMayus)) {
+    this.aviso = "Ya intentaste esa letra";
+    return; 
   }
+
+  // Si es una letra nueva, limpiamos el aviso
+  this.aviso = "";
+  this.adivinadas.add(letraMayus);
+
+  if (!this.palabraSecreta.includes(letraMayus)) {
+    this.errores++;
+  }
+}
 
   vidas(): number {
     return 6 - this.errores; // Calculamos las vidas restantes
@@ -46,7 +52,7 @@ export class Ahorcado {
 }
 
 mensajeInformativo(): string {
-    return "Ya intentaste esa letra";
+    return this.aviso;
   }
 
 }
