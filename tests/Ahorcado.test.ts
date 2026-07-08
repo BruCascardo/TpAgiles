@@ -24,4 +24,11 @@ it("revela la letra acertada en la palabra enmascarada", () => {
   juego.adivinar("A");
   expect(juego.palabraEnmascarada()).toBe("_ A _ _");
 });
+
+it("no modifica la palabra enmascarada si la letra es incorrecta", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("E");
+  expect(juego.palabraEnmascarada()).toBe("_ _ _ _");
+});
+
 });
