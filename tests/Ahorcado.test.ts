@@ -53,4 +53,10 @@ it("revela la palabra GATO cuando el jugador pierde", () => {
   expect(juego.palabraEnmascarada()).toBe("G A T O");
 });
 
+it("revela correctamente cualquier palabra al perder (ej: MESA)", () => {
+  const juego = new Ahorcado("MESA");
+  ["Z", "X", "C", "V", "B", "N"].forEach(letra => juego.adivinar(letra));
+  expect(juego.palabraEnmascarada()).toBe("M E S A");
+});
+
 });
