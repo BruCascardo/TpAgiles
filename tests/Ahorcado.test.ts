@@ -87,4 +87,15 @@ it("no resta vidas y avisa cuando se ingresa el numero 1", () => {
   expect(juego.mensajeInformativo()).toBe("Entrada inválida");
 });
 
+it("valida dinamicamente cualquier caracter que no sea una letra", () => {
+  const juego = new Ahorcado("GATO");
+
+  juego.adivinar("@");
+  expect(juego.vidas()).toBe(6);
+  expect(juego.mensajeInformativo()).toBe("Entrada inválida");
+
+  juego.adivinar(" "); // Espacio vacío
+  expect(juego.mensajeInformativo()).toBe("Entrada inválida");
+});
+
 });
