@@ -125,4 +125,14 @@ it("devuelve la letra 'A' como usada luego de intentarla", () => {
   expect(juego.letrasUsadas()).toContain("A");
 });
 
+it("devuelve dinamicamente el historial completo de letras intentadas (aciertos y errores)", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("X"); // Error
+  juego.adivinar("O"); // Acierto
+
+  const usadas = juego.letrasUsadas();
+  expect(usadas).toContain("X");
+  expect(usadas).toContain("O");
+  expect(usadas.length).toBe(2);
+});
 });
