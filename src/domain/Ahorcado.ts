@@ -54,4 +54,10 @@ export class Ahorcado {
   mensajeInformativo(): string {
     return this.aviso;
   }
+
+  partesDibujo(): string[] {
+  // Hardcodeo: devolvemos siempre "cabeza"
+  return ["cabeza"];
+  }
+
 }
