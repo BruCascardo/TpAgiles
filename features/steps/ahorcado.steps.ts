@@ -53,3 +53,7 @@ Then("el juego tiene una palabra secreta oculta", async ({ page }) => {
   // Verificamos que el contenedor de la palabra tenga guiones bajos
   await expect(page.getByTestId("word")).toContainText("_");
 });
+
+Given("una partida en dificultad {string} con la palabra {string}", async ({ page }, dificultad: string, palabra: string) => {
+  await page.goto(`/?dificultad=${dificultad}&word=${palabra}`);
+});
