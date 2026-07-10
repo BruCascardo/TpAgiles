@@ -1,0 +1,99 @@
+name: Pipeline CI/CD Ahorcado
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Permisos necesarios para publicar en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: 1. Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run build
+      # Guardamos el build para usarlo en el deploy
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+  unit:
+    name: 2. Unit Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run test
+
+  coverage:
+    name: 3. Coverage
+    needs: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run coverage
+
+  static-analysis:
+    name: 4. Análisis Estático (Gate)
+    needs: coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npm run lint
+
+  acceptance-test:
+    name: 5. AT en Navegador
+    needs: static-analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run at
+
+  deploy:
+    name: 6. Deploy a GitHub Pages
+    needs: acceptance-test
+    runs-on: ubuntu-latest
+    # Si no es la rama main, no despliega (para que no falle en Pull Requests)
+    if: github.ref == 'refs/heads/main' 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'dist/'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
