@@ -119,5 +119,10 @@ it("devuelve un arreglo progresivo de partes segun la cantidad de errores", () =
   ]);
 });
 
+it("devuelve la letra 'A' como usada luego de intentarla", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("A");
+  expect(juego.letrasUsadas()).toContain("A");
+});
 
 });
