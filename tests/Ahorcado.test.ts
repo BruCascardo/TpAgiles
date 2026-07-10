@@ -98,4 +98,10 @@ it("valida dinamicamente cualquier caracter que no sea una letra", () => {
   expect(juego.mensajeInformativo()).toBe("Entrada inválida");
 });
 
+it("devuelve 'cabeza' como parte del dibujo al cometer 1 error", () => {
+  const juego = new Ahorcado("GATO");
+  juego.adivinar("Z");
+  expect(juego.partesDibujo()).toEqual(["cabeza"]);
+});
+
 });
