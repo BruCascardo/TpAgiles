@@ -3,11 +3,14 @@ export class Ahorcado {
   private adivinadas: Set<string> = new Set();
   private errores: number = 0;
   private aviso: string = "";
-  private dificultad: string;
+  private maxVidas: number;
 
   constructor(palabra: string, dificultad: string = "medio") {
     this.palabraSecreta = palabra;
-    this.dificultad = dificultad;
+
+    if (dificultad === "facil") this.maxVidas = 8;
+    else if (dificultad === "dificil") this.maxVidas = 4;
+    else this.maxVidas = 6; // medio por defecto
   }
 
   palabraEnmascarada(): string {
@@ -42,11 +45,7 @@ export class Ahorcado {
   }
 
   vidas(): number {
-    // Hardcodeo para pasar el test
-    if (this.dificultad === "dificil") {
-      return 4 - this.errores;
-    }
-    return 6 - this.errores;
+    return this.maxVidas - this.errores;
   }
 
   haGanado(): boolean {
