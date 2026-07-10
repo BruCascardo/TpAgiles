@@ -135,4 +135,14 @@ it("devuelve dinamicamente el historial completo de letras intentadas (aciertos 
   expect(usadas).toContain("O");
   expect(usadas.length).toBe(2);
 });
+
+it("elige la primera palabra de la lista si el generador de azar devuelve 0", () => {
+  const diccionario = ["PERRO", "MESA", "SILLA"];
+  // Inyectamos una función que simula Math.random() pero devuelve siempre 0
+  const fakeRandom = () => 0; 
+
+  const palabraElegida = Ahorcado.elegirPalabraAleatoria(diccionario, fakeRandom);
+  expect(palabraElegida).toBe("PERRO");
+});
+
 });
