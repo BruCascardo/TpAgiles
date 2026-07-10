@@ -69,8 +69,8 @@ partesDibujo(): string[] {
 }
 
 letrasUsadas(): string[] {
-  // Hardcodeo rápido
-  return ["A"];
+  // Convertimos el Set a Array para que la UI lo consuma fácilmente
+  return Array.from(this.adivinadas);
 }
 
 }
