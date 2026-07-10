@@ -34,3 +34,9 @@ Then("se ve el mensaje {string}", async ({ page }, mensaje: string) => {
 Then("se ve la parte del dibujo {string}", async ({ page }, parte: string) => {
   await expect(page.getByTestId("dibujo")).toContainText(parte);
 });
+
+Then("la tecla {string} aparece deshabilitada", async ({ page }, letra: string) => {
+  // Buscamos el botón por su texto exacto y verificamos que esté deshabilitado
+  const boton = page.getByRole('button', { name: letra, exact: true });
+  await expect(boton).toBeDisabled();
+});
