@@ -160,3 +160,11 @@ it("inicia la partida con 4 vidas cuando la dificultad es 'dificil'", () => {
   const juego = new Ahorcado("GATO", "dificil");
   expect(juego.vidas()).toBe(4);
 });
+
+it("asigna la cantidad correcta de vidas segun el nivel (facil=8, medio=6, dificil=4)", () => {
+  const juegoFacil = new Ahorcado("GATO", "facil");
+  expect(juegoFacil.vidas()).toBe(8);
+
+  const juegoMedio = new Ahorcado("GATO", "medio");
+  expect(juegoMedio.vidas()).toBe(6);
+});
