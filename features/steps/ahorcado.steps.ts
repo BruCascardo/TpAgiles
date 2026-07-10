@@ -43,3 +43,13 @@ Then(
     await expect(boton).toBeDisabled();
   },
 );
+
+Given("una partida nueva sin palabra especificada", async ({ page }) => {
+  // Entramos a la raíz sin parámetros en la URL
+  await page.goto(`/`);
+});
+
+Then("el juego tiene una palabra secreta oculta", async ({ page }) => {
+  // Verificamos que el contenedor de la palabra tenga guiones bajos
+  await expect(page.getByTestId("word")).toContainText("_");
+});
