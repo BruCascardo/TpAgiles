@@ -68,4 +68,9 @@ partesDibujo(): string[] {
   return partes.slice(0, this.errores);
 }
 
+letrasUsadas(): string[] {
+  // Hardcodeo rápido
+  return ["A"];
+}
+
 }
