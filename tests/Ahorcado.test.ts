@@ -146,3 +146,12 @@ it("elige la primera palabra de la lista si el generador de azar devuelve 0", ()
 });
 
 });
+
+it("elige la ultima palabra de la lista si el generador de azar devuelve casi 1", () => {
+  const diccionario = ["PERRO", "MESA", "SILLA"];
+  // Math.random devuelve un valor entre 0 (inclusivo) y 1 (exclusivo)
+  const fakeRandom = () => 0.99; 
+
+  const palabraElegida = Ahorcado.elegirPalabraAleatoria(diccionario, fakeRandom);
+  expect(palabraElegida).toBe("SILLA");
+});
