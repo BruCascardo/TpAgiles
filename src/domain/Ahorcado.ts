@@ -55,9 +55,17 @@ export class Ahorcado {
     return this.aviso;
   }
 
-  partesDibujo(): string[] {
-  // Hardcodeo: devolvemos siempre "cabeza"
-  return ["cabeza"];
-  }
+partesDibujo(): string[] {
+  const partes = [
+    "cabeza", 
+    "cuerpo", 
+    "brazo izquierdo", 
+    "brazo derecho", 
+    "pierna izquierda", 
+    "pierna derecha"
+  ];
+  // Retorna un recorte del array basado en la cantidad de errores actuales
+  return partes.slice(0, this.errores);
+}
 
 }
