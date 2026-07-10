@@ -24,3 +24,7 @@ Then("se ven {int} vidas", async ({ page }, vidas: number) => {
 Then("se ve el mensaje {string}", async ({ page }, mensaje: string) => {
   await expect(page.getByTestId("mensaje")).toHaveText(mensaje);
 });
+
+Then("se ve la parte del dibujo {string}", async ({ page }, parte: string) => {
+  await expect(page.getByTestId("dibujo")).toContainText(parte);
+});
