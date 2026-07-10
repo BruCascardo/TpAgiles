@@ -104,4 +104,20 @@ it("devuelve 'cabeza' como parte del dibujo al cometer 1 error", () => {
   expect(juego.partesDibujo()).toEqual(["cabeza"]);
 });
 
+it("devuelve un arreglo progresivo de partes segun la cantidad de errores", () => {
+  const juego = new Ahorcado("GATO");
+
+  expect(juego.partesDibujo()).toEqual([]); // 0 errores = vacío
+
+  juego.adivinar("Z"); // 1 error
+  juego.adivinar("X"); // 2 errores
+  expect(juego.partesDibujo()).toEqual(["cabeza", "cuerpo"]);
+
+  ["C", "V", "B", "N"].forEach(letra => juego.adivinar(letra)); // 6 errores
+  expect(juego.partesDibujo()).toEqual([
+    "cabeza", "cuerpo", "brazo izquierdo", "brazo derecho", "pierna izquierda", "pierna derecha"
+  ]);
+});
+
+
 });
