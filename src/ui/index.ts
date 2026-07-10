@@ -3,14 +3,14 @@ import { mountApp } from "./main";
 
 const params = new URLSearchParams(window.location.search);
 
-// Definimos nuestro diccionario
 const diccionario = ["ALGORITMO", "TYPESCRIPT", "COMPUTADORA", "INTERNET", "PROGRAMACION", "DESARROLLO"];
-
-// Si viene por URL la usamos (útil para el resto de los ATs deterministas)
-// Si no, elegimos una al azar usando el método de dominio (sin pasar el seam, usa Math.random)
 const palabra = params.get("word") || Ahorcado.elegirPalabraAleatoria(diccionario);
 
-const juego = new Ahorcado(palabra);
+// Leemos la dificultad de la URL, por defecto será medio
+const dificultad = params.get("dificultad") || "medio";
+
+// Instanciamos inyectando ambas dependencias
+const juego = new Ahorcado(palabra, dificultad);
 const appContainer = document.getElementById("app");
 
 if (appContainer) {
