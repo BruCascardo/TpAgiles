@@ -73,9 +73,9 @@ letrasUsadas(): string[] {
   return Array.from(this.adivinadas);
 }
 
-static elegirPalabraAleatoria(diccionario: string[], generadorAzar: () => number): string {
-    // Hardcodeo rápido para pasar el test actual
-    return diccionario[0];
-  }
+static elegirPalabraAleatoria(diccionario: string[], generadorAzar: () => number = Math.random): string {
+  const indiceElegido = Math.floor(generadorAzar() * diccionario.length);
+  return diccionario[indiceElegido];
+}
 
 }
