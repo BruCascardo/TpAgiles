@@ -155,3 +155,8 @@ it("elige la ultima palabra de la lista si el generador de azar devuelve casi 1"
   const palabraElegida = Ahorcado.elegirPalabraAleatoria(diccionario, fakeRandom);
   expect(palabraElegida).toBe("SILLA");
 });
+
+it("inicia la partida con 4 vidas cuando la dificultad es 'dificil'", () => {
+  const juego = new Ahorcado("GATO", "dificil");
+  expect(juego.vidas()).toBe(4);
+});
