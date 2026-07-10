@@ -5,7 +5,6 @@ function dibujarAhorcado(partes: string[]): string {
 
   return `
     <svg viewBox="0 0 200 250" width="200" height="250" class="ahorcado-svg">
-      <!-- Horca (siempre visible) -->
       <line x1="20" y1="230" x2="120" y2="230" stroke="#333" stroke-width="4" />
       <line x1="50" y1="230" x2="50" y2="20" stroke="#333" stroke-width="4" />
       <line x1="50" y1="20" x2="140" y2="20" stroke="#333" stroke-width="4" />
@@ -27,31 +26,66 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
   if (juego.haGanado()) mensaje = "GANASTE";
   if (juego.haPerdido()) mensaje = "PERDISTE";
   const juegoTerminado = juego.haGanado() || juego.haPerdido();
+  const usadas = juego.letrasUsadas();
+
+  const abecedario = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
+  const tecladoHTML = abecedario
+    .map((letra) => {
+      const deshabilitada =
+        usadas.includes(letra) || juegoTerminado ? "disabled" : "";
+      return `<button class="tecla" type="button" data-letra="${letra}" ${deshabilitada}>${letra}</button>`;
+    })
+    .join("");
 
   container.innerHTML = `
     <div class="game-container">
       <h1>Ahorcado</h1>
+      <form class="entrada-form" data-testid="entrada-form">
+        <label for="entrada-letra">Ingresar letra</label>
+        <input
+          id="entrada-letra"
+          name="letra"
+          type="text"
+          maxlength="1"
+          autocomplete="off"
+          ${juegoTerminado ? "disabled" : ""}
+        />
+      </form>
       <div class="word-display" data-testid="word">${juego.palabraEnmascarada()}</div>
       <div class="lives-display">Vidas: <span data-testid="lives">${juego.vidas()}</span></div>
       <div data-testid="mensaje" class="mensaje">${mensaje}</div>
       <div data-testid="dibujo" class="dibujo-container">
         ${dibujarAhorcado(juego.partesDibujo())}
       </div>
-      <form id="guess-form" class="guess-form">
-        <input type="text" maxlength="1" placeholder="Ingresa una letra" autofocus ${juegoTerminado ? 'disabled' : ''} />
-        <button type="submit" ${juegoTerminado ? 'disabled' : ''}>Intentar</button>
-      </form>
+      <div class="teclado-container" data-testid="teclado">
+        ${tecladoHTML}
+      </div>
     </div>
   `;
 
-  const form = container.querySelector("#guess-form") as HTMLFormElement;
-  const input = container.querySelector("input") as HTMLInputElement;
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const letra = input.value.trim();
-    if (letra && !juegoTerminado) {
+  const entrada = container.querySelector<HTMLInputElement>("#entrada-letra");
+  entrada?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    const letra = entrada.value;
+
+    if (!juegoTerminado) {
       juego.adivinar(letra);
       mountApp(container, juego);
     }
+  });
+
+  const teclas = container.querySelectorAll(".tecla");
+  teclas.forEach((boton) => {
+    boton.addEventListener("click", (e) => {
+      const letra = (e.target as HTMLButtonElement).dataset.letra;
+      if (letra && !juegoTerminado) {
+        juego.adivinar(letra);
+        mountApp(container, juego);
+      }
+    });
   });
 }
