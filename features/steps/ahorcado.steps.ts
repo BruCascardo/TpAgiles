@@ -57,3 +57,19 @@ Then("el juego tiene una palabra secreta oculta", async ({ page }) => {
 Given("una partida en dificultad {string} con la palabra {string}", async ({ page }, dificultad: string, palabra: string) => {
   await page.goto(`/?dificultad=${dificultad}&word=${palabra}`);
 });
+
+Given("que el jugador abre la aplicación", async ({ page }) => {
+  // Entra a la raíz pura, sin parámetros
+  await page.goto(`/`);
+});
+
+When("el jugador selecciona el nivel {string}", async ({ page }, nivel: string) => {
+  // Busca un botón que tenga el data-testid="btn-nivel-facil" (por ejemplo)
+  const boton = page.getByTestId(`btn-nivel-${nivel}`);
+  await boton.click();
+});
+
+Then("el juego comienza", async ({ page }) => {
+  // Verificamos que el contenedor principal del juego ya esté visible
+  await expect(page.getByTestId("word")).toBeVisible();
+});
