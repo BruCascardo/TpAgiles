@@ -1,7 +1,615 @@
+/* ==========================================================================
+   Ahorcado — Glassmorphism theme v2
+   Solo estilos visuales. No contiene lógica de juego.
+   ========================================================================== */
+
 .sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+}
+
+/* --------------------------------------------------------------------------
+   Variables de tema
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="dark"] {
+  --accent: #8B7FE8;
+  --accent-strong: #A79CF2;
+  --accent-soft: rgba(139, 127, 232, 0.18);
+  --gold: #F2C572;
+
+  --bg-a: #0f1117;
+  --bg-b: #1a1d29;
+
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-strong: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(255, 255, 255, 0.16);
+  --glass-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.58);
+  --text-muted: rgba(255, 255, 255, 0.38);
+
+  --key-bg: rgba(255, 255, 255, 0.05);
+  --key-border: rgba(255, 255, 255, 0.14);
+  --key-hover: rgba(255, 255, 255, 0.12);
+
+  --correct: #9BE3C4;
+  --correct-bg: rgba(155, 227, 196, 0.14);
+  --incorrect: #E0958A;
+  --incorrect-bg: rgba(224, 149, 138, 0.14);
+
+  --stroke: rgba(255, 255, 255, 0.55);
+
+  --blob-1: rgba(139, 127, 232, 0.35);
+  --blob-2: rgba(120, 160, 220, 0.28);
+  --blob-3: rgba(242, 197, 114, 0.14);
+}
+
+[data-theme="light"] {
+  --accent: #7C6FE0;
+  --accent-strong: #6357CC;
+  --accent-soft: rgba(124, 111, 224, 0.14);
+  --gold: #D9A441;
+
+  --bg-a: #eef0f7;
+  --bg-b: #f6f7fb;
+
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 20px 50px rgba(100, 110, 150, 0.18);
+
+  --text-primary: #262A35;
+  --text-secondary: #5B6072;
+  --text-muted: #8A8FA0;
+
+  --key-bg: rgba(255, 255, 255, 0.5);
+  --key-border: rgba(120, 120, 150, 0.16);
+  --key-hover: rgba(255, 255, 255, 0.85);
+
+  --correct: #4C9A78;
+  --correct-bg: rgba(76, 154, 120, 0.12);
+  --incorrect: #C46F62;
+  --incorrect-bg: rgba(196, 111, 98, 0.12);
+
+  --stroke: rgba(38, 42, 53, 0.55);
+
+  --blob-1: rgba(139, 127, 232, 0.25);
+  --blob-2: rgba(120, 160, 220, 0.2);
+  --blob-3: rgba(217, 164, 65, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+html {
+  background: linear-gradient(160deg, var(--bg-a), var(--bg-b));
+  min-height: 100%;
+  transition: background 0.4s ease;
+}
+
+body {
+  color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fondo decorativo: se monta UNA sola vez fuera del panel que se
+   re-renderiza, para que sus animaciones no se reinicien en cada jugada. */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.9;
+}
+
+.blob-1 {
+  width: 480px;
+  height: 480px;
+  background: var(--blob-1);
+  top: -120px;
+  left: -100px;
+  animation: float-a 26s ease-in-out infinite;
+}
+
+.blob-2 {
+  width: 420px;
+  height: 420px;
+  background: var(--blob-2);
+  bottom: -140px;
+  right: -100px;
+  animation: float-b 32s ease-in-out infinite;
+}
+
+.blob-3 {
+  width: 320px;
+  height: 320px;
+  background: var(--blob-3);
+  top: 42%;
+  left: 46%;
+  animation: float-a 40s ease-in-out infinite reverse;
+}
+
+.grano {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+@keyframes float-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 40px) scale(1.08); }
+}
+
+@keyframes float-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, -30px) scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob-1, .blob-2, .blob-3 { animation: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Panel principal (vidrio)
+   -------------------------------------------------------------------------- */
+.game-container {
+  position: relative;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2.75rem;
+  border-radius: 28px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+
+/* La animación de entrada solo se aplica en el primer montaje de la
+   página (clase "entrada"), nunca en re-renders por cada jugada. */
+.game-container.entrada {
+  animation: panel-in 0.5s ease;
+}
+
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.game-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  right: 16%;
+  height: 3px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.75;
+}
+
+.game-container::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(160px 160px at 12% 0%, var(--blob-1), transparent 70%);
+  opacity: 0.4;
+  animation: respirar 9s ease-in-out infinite;
+}
+
+@keyframes respirar {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.55; }
+}
+
+.game-container.estado-ganaste {
+  animation: glow-ganaste 1.2s ease;
+}
+
+.game-container.estado-perdiste {
+  animation: glow-perdiste 0.6s ease;
+}
+
+@keyframes glow-ganaste {
+  0% { box-shadow: var(--glass-shadow), 0 0 0 1px var(--glass-border); }
+  50% { box-shadow: var(--glass-shadow), 0 0 46px 8px var(--accent-soft); }
+  100% { box-shadow: var(--glass-shadow), 0 0 0 1px var(--glass-border); }
+}
+
+@keyframes glow-perdiste {
+  0%, 100% { box-shadow: var(--glass-shadow), 0 0 0 1px var(--glass-border); }
+  50% { box-shadow: var(--glass-shadow), 0 0 32px 5px var(--incorrect-bg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-container.entrada,
+  .game-container::after,
+  .game-container.estado-ganaste,
+  .game-container.estado-perdiste {
+    animation: none;
+  }
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 0.25rem;
+}
+
+.game-container h1 {
+  font-size: clamp(1.9rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  background: linear-gradient(120deg, var(--text-primary), var(--accent-strong));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.theme-toggle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--key-border);
+  background: var(--key-bg);
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--key-hover);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin: 0.25rem 0 1.75rem;
+}
+
+/* --------------------------------------------------------------------------
+   Formulario de entrada
+   -------------------------------------------------------------------------- */
+.entrada-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.entrada-form label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.entrada-form input {
+  width: 64px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--key-border);
+  border-radius: 16px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.entrada-form input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+.entrada-form input:disabled {
+  opacity: 0.45;
+}
+
+/* --------------------------------------------------------------------------
+   Palabra — usa word-spacing (no letter-spacing) para que cada línea,
+   incluida la última al hacer wrap, quede perfectamente centrada.
+   -------------------------------------------------------------------------- */
+.word-display {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: normal;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+  padding: 0 0.25rem;
+  animation: word-fade 0.35s ease;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.word-display.word-lg {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  word-spacing: 0.6em;
+}
+
+.word-display.word-md {
+  font-size: clamp(1.4rem, 4.2vw, 2rem);
+  word-spacing: 0.45em;
+}
+
+.word-display.word-sm {
+  font-size: clamp(1.05rem, 3.2vw, 1.5rem);
+  word-spacing: 0.32em;
+}
+
+@keyframes word-fade {
+  from { opacity: 0.4; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   Vidas
+   -------------------------------------------------------------------------- */
+.lives-display {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.lives-display span {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.05rem;
+  background: var(--accent-soft);
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.lives-display.vida-perdida span {
+  animation: vida-shake 0.4s ease;
+  color: var(--incorrect);
+  background: var(--incorrect-bg);
+}
+
+@keyframes vida-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* --------------------------------------------------------------------------
+   Resultado (mensaje + estado del juego)
+   -------------------------------------------------------------------------- */
+.resultado {
+  min-height: 1.4em;
+  margin-bottom: 0.75rem;
+}
+
+.mensaje {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--incorrect);
+  transition: all 0.2s ease;
+}
+
+.mensaje:empty {
+  opacity: 0;
+}
+
+.resultado.ganaste::before {
+  content: "🎉";
+  display: block;
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+  animation: pop-in 0.4s ease;
+}
+
+.resultado.perdiste::before {
+  content: "💀";
+  display: block;
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+  opacity: 0.85;
+}
+
+.resultado.ganaste .mensaje {
+  color: var(--correct);
+  font-size: 1.3rem;
+}
+
+.resultado.perdiste .mensaje {
+  color: var(--incorrect);
+  font-size: 1.15rem;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   Confetti (solo al ganar)
+   -------------------------------------------------------------------------- */
+.confetti-contenedor {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.confetti-pieza {
+  position: absolute;
+  top: -8%;
+  width: 8px;
+  height: 14px;
+  opacity: 0.9;
+  border-radius: 2px;
+  animation-name: confetti-caida;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-caida {
+  0% { transform: translateY(0) rotate(var(--rot)); opacity: 1; }
+  100% { transform: translateY(440px) rotate(calc(var(--rot) + 220deg)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti-pieza { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Dibujo del ahorcado
+   -------------------------------------------------------------------------- */
+.dibujo-container {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 1.75rem;
+}
+
+.ahorcado-svg line,
+.ahorcado-svg circle {
+  stroke: var(--stroke) !important;
+  stroke-width: 2.2 !important;
+  stroke-linecap: round;
+  transition: stroke 0.3s ease;
+}
+
+.ahorcado-svg circle {
+  stroke: var(--incorrect) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Teclado virtual
+   -------------------------------------------------------------------------- */
+.teclado-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
+  gap: 0.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.tecla {
+  padding: 0.65rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--key-bg);
+  border: 1px solid var(--key-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tecla:hover:not(:disabled) {
+  background: var(--key-hover);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  transform: translateY(-2px);
+}
+
+.tecla:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+}
+
+.tecla:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+/* Estado persistente (sin animación, para que no "tiemble" en cada
+   render aunque no sea la tecla recién presionada). */
+.tecla.correcta {
+  color: var(--correct);
+  background: var(--correct-bg);
+  border-color: var(--correct);
+}
+
+.tecla.incorrecta {
+  color: var(--incorrect);
+  background: var(--incorrect-bg);
+  border-color: var(--incorrect);
+}
+
+/* Animación de un solo uso: solo se aplica a la tecla recién adivinada. */
+.tecla.flash-correcta {
+  animation: pop-correcta 0.4s ease;
+}
+
+.tecla.flash-incorrecta {
+  animation: shake 0.35s ease;
+}
+
+@keyframes pop-correcta {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tecla.flash-incorrecta,
+  .tecla.flash-correcta,
+  .word-display {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .game-container {
+    padding: 2rem 1.25rem 2.25rem;
+    border-radius: 22px;
+  }
+
+  .teclado-container {
+    grid-template-columns: repeat(auto-fit, minmax(32px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .entrada-form input {
+    width: 56px;
+    height: 50px;
+    font-size: 1.4rem;
+  }
 }

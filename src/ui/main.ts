@@ -1,4 +1,70 @@
 import { Ahorcado } from "../domain/Ahorcado";
+import "./styles.css";
+
+// --- Tema (solo visual, no toca la lógica del juego) ---------------------
+type Tema = "light" | "dark";
+
+let temaActual: Tema =
+  window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
+
+document.documentElement.setAttribute("data-theme", temaActual);
+
+function aplicarTema(): void {
+  document.documentElement.setAttribute("data-theme", temaActual);
+  const boton = document.getElementById("theme-toggle");
+  if (boton) {
+    boton.textContent = temaActual === "dark" ? "🌙" : "☀️";
+    boton.setAttribute(
+      "aria-label",
+      temaActual === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro",
+    );
+  }
+}
+
+// --- Fondo decorativo (blobs + grano) -------------------------------------
+// Se monta UNA sola vez, fuera del contenedor que se re-renderiza en cada
+// jugada, para que sus animaciones no se corten/reinicien todo el tiempo.
+function montarFondo(): void {
+  if (document.getElementById("fondo-decorativo")) return;
+
+  const fondo = document.createElement("div");
+  fondo.id = "fondo-decorativo";
+  fondo.className = "bg-blobs";
+  fondo.setAttribute("aria-hidden", "true");
+  fondo.innerHTML = `
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+    <span class="grano"></span>
+  `;
+  document.body.prepend(fondo);
+}
+
+montarFondo();
+
+// --- Estado auxiliar solo de presentación (no es estado del juego) -------
+// Estas variables no alteran ninguna regla: solo permiten decidir qué
+// animación mostrar en el próximo render (p. ej. "solo animar la tecla que
+// se acaba de tocar" en vez de recrear todas las teclas con animación).
+let entradaAnimada = false;
+let vidasPrevias: number | null = null;
+let letraRecienIntentada: string | null = null;
+
+function crearConfetti(): string {
+  const colores = ["var(--accent)", "var(--correct)", "var(--gold)"];
+  let piezas = "";
+  for (let i = 0; i < 24; i++) {
+    const izquierda = (Math.random() * 100).toFixed(1);
+    const retraso = (Math.random() * 0.5).toFixed(2);
+    const duracion = (1.8 + Math.random() * 1.2).toFixed(2);
+    const color = colores[i % colores.length];
+    const rotacion = Math.floor(Math.random() * 360);
+    piezas += `<span class="confetti-pieza" style="left:${izquierda}%; animation-delay:${retraso}s; animation-duration:${duracion}s; background:${color}; --rot:${rotacion}deg;"></span>`;
+  }
+  return `<div class="confetti-contenedor" aria-hidden="true">${piezas}</div>`;
+}
 
 function dibujarAhorcado(partes: string[]): string {
   const tiene = (parte: string) => partes.includes(parte);
@@ -28,18 +94,66 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
   const juegoTerminado = juego.haGanado() || juego.haPerdido();
   const usadas = juego.letrasUsadas();
 
+  // Derivado únicamente de palabraEnmascarada() (ya pública) para
+  // clasificar visualmente las teclas como correctas/incorrectas.
+  // No agrega reglas de juego nuevas.
+  const letrasReveladas = new Set(
+    juego.palabraEnmascarada().split(" ").filter((c) => c !== "_"),
+  );
+
+  // Clase de tamaño según longitud de palabra, para que siempre entre
+  // completa en el panel (sin cortarse ni desbordar).
+  const longitudPalabra = juego.palabraEnmascarada().replace(/\s/g, "").length;
+  let claseLongitud = "word-lg";
+  if (longitudPalabra > 9) claseLongitud = "word-sm";
+  else if (longitudPalabra > 6) claseLongitud = "word-md";
+
+  // Detecta si esta jugada restó una vida, solo para disparar una
+  // animación puntual (no cambia ninguna regla del juego).
+  const vidasActuales = juego.vidas();
+  const vidaPerdida = vidasPrevias !== null && vidasActuales < vidasPrevias;
+  vidasPrevias = vidasActuales;
+
   const abecedario = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("");
   const tecladoHTML = abecedario
     .map((letra) => {
       const deshabilitada =
         usadas.includes(letra) || juegoTerminado ? "disabled" : "";
-      return `<button class="tecla" type="button" data-letra="${letra}" ${deshabilitada}>${letra}</button>`;
+
+      let clases = "tecla";
+      if (usadas.includes(letra)) {
+        const esCorrecta = letrasReveladas.has(letra);
+        clases += esCorrecta ? " correcta" : " incorrecta";
+        // La animación (flash/shake) solo se aplica a la tecla que se
+        // acaba de presionar, no a todas las que ya estaban usadas.
+        if (letra === letraRecienIntentada) {
+          clases += esCorrecta ? " flash-correcta" : " flash-incorrecta";
+        }
+      }
+
+      return `<button class="${clases}" type="button" data-letra="${letra}" ${deshabilitada}>${letra}</button>`;
     })
     .join("");
 
+  const claseEntrada = entradaAnimada ? "" : "entrada";
+  entradaAnimada = true;
+
+  let claseEstado = "";
+  if (juego.haGanado()) claseEstado = "estado-ganaste";
+  if (juego.haPerdido()) claseEstado = "estado-perdiste";
+
+  let claseResultado = "";
+  if (juego.haGanado()) claseResultado = "ganaste";
+  if (juego.haPerdido()) claseResultado = "perdiste";
+
   container.innerHTML = `
-    <div class="game-container">
-      <h1>Ahorcado</h1>
+    <div class="game-container ${claseEntrada} ${claseEstado}">
+      ${juego.haGanado() ? crearConfetti() : ""}
+      <div class="game-header">
+        <h1>Ahorcado</h1>
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">🌙</button>
+      </div>
+      <p class="subtitle">Adiviná la palabra antes de quedarte sin vidas</p>
       <form class="entrada-form" data-testid="entrada-form">
         <label for="entrada-letra">Ingresar letra</label>
         <input
@@ -51,9 +165,11 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
           ${juegoTerminado ? "disabled" : ""}
         />
       </form>
-      <div class="word-display" data-testid="word">${juego.palabraEnmascarada()}</div>
-      <div class="lives-display">Vidas: <span data-testid="lives">${juego.vidas()}</span></div>
-      <div data-testid="mensaje" class="mensaje">${mensaje}</div>
+      <div class="word-display ${claseLongitud}" data-testid="word">${juego.palabraEnmascarada()}</div>
+      <div class="lives-display ${vidaPerdida ? "vida-perdida" : ""}">Vidas: <span data-testid="lives">${juego.vidas()}</span></div>
+      <div class="resultado ${claseResultado}">
+        <div data-testid="mensaje" class="mensaje">${mensaje}</div>
+      </div>
       <div data-testid="dibujo" class="dibujo-container">
         ${dibujarAhorcado(juego.partesDibujo())}
       </div>
@@ -62,6 +178,14 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
       </div>
     </div>
   `;
+
+  aplicarTema();
+
+  const botonTema = container.querySelector<HTMLButtonElement>("#theme-toggle");
+  botonTema?.addEventListener("click", () => {
+    temaActual = temaActual === "dark" ? "light" : "dark";
+    aplicarTema();
+  });
 
   const entrada = container.querySelector<HTMLInputElement>("#entrada-letra");
   entrada?.addEventListener("keydown", (event) => {
@@ -73,6 +197,7 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
     const letra = entrada.value;
 
     if (!juegoTerminado) {
+      letraRecienIntentada = letra.toUpperCase();
       juego.adivinar(letra);
       mountApp(container, juego);
     }
@@ -83,9 +208,16 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
     boton.addEventListener("click", (e) => {
       const letra = (e.target as HTMLButtonElement).dataset.letra;
       if (letra && !juegoTerminado) {
+        letraRecienIntentada = letra;
         juego.adivinar(letra);
         mountApp(container, juego);
       }
     });
   });
+
+  // Mantiene el foco en el input entre jugadas para que escribir letras
+  // sea fluido y no se sienta como si la página se recargara.
+  if (!juegoTerminado) {
+    entrada?.focus();
+  }
 }
