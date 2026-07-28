@@ -11,7 +11,7 @@ let temaActual: Tema =
 
 document.documentElement.setAttribute("data-theme", temaActual);
 
-function aplicarTema(): void {
+export function aplicarTema(): void {
   document.documentElement.setAttribute("data-theme", temaActual);
   const boton = document.getElementById("theme-toggle");
   if (boton) {
@@ -23,10 +23,24 @@ function aplicarTema(): void {
   }
 }
 
+// Reutilizable desde cualquier pantalla (menú o juego) que tenga un botón
+// con id="theme-toggle".
+export function alternarTema(): void {
+  temaActual = temaActual === "dark" ? "light" : "dark";
+  aplicarTema();
+}
+
+// Markup del botón de tema, para que el menú lo use igual que el juego.
+export function botonTemaHTML(): string {
+  return `<button type="button" id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">🌙</button>`;
+}
+
 // --- Fondo decorativo (blobs + grano) -------------------------------------
 // Se monta UNA sola vez, fuera del contenedor que se re-renderiza en cada
 // jugada, para que sus animaciones no se corten/reinicien todo el tiempo.
-function montarFondo(): void {
+// Se ejecuta automáticamente al importar este módulo (ver más abajo), así
+// que el menú también lo tiene disponible sin llamarlo manualmente.
+export function montarFondo(): void {
   if (document.getElementById("fondo-decorativo")) return;
 
   const fondo = document.createElement("div");
@@ -151,7 +165,7 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
       ${juego.haGanado() ? crearConfetti() : ""}
       <div class="game-header">
         <h1>Ahorcado</h1>
-        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Cambiar tema">🌙</button>
+        ${botonTemaHTML()}
       </div>
       <p class="subtitle">Adiviná la palabra antes de quedarte sin vidas</p>
       <form class="entrada-form" data-testid="entrada-form">
@@ -182,10 +196,7 @@ export function mountApp(container: HTMLElement, juego: Ahorcado): void {
   aplicarTema();
 
   const botonTema = container.querySelector<HTMLButtonElement>("#theme-toggle");
-  botonTema?.addEventListener("click", () => {
-    temaActual = temaActual === "dark" ? "light" : "dark";
-    aplicarTema();
-  });
+  botonTema?.addEventListener("click", alternarTema);
 
   const entrada = container.querySelector<HTMLInputElement>("#entrada-letra");
   entrada?.addEventListener("keydown", (event) => {

@@ -45,8 +45,10 @@ Then(
 );
 
 Given("una partida nueva sin palabra especificada", async ({ page }) => {
-  // Entramos a la raíz sin parámetros en la URL
+  // Entramos a la raíz sin parámetros en la URL: ahora esto muestra el
+  // menú, así que elegimos una dificultad para llegar al juego.
   await page.goto(`/`);
+  await page.getByTestId("btn-nivel-medio").click();
 });
 
 Then("el juego tiene una palabra secreta oculta", async ({ page }) => {
