@@ -168,3 +168,8 @@ it("asigna la cantidad correcta de vidas segun el nivel (facil=8, medio=6, dific
   const juegoMedio = new Ahorcado("GATO", "medio");
   expect(juegoMedio.vidas()).toBe(6);
 });
+
+it("conoce en qué dificultad se está jugando", () => {
+  const juego = new Ahorcado("GATO", "facil");
+  expect(juego.nivelActual()).toBe("facil");
+});
