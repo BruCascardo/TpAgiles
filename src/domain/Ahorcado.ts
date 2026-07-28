@@ -5,8 +5,12 @@ export class Ahorcado {
   private aviso: string = "";
   private maxVidas: number;
 
+  private dificultad: string;
+
   constructor(palabra: string, dificultad: string = "medio") {
+ 
     this.palabraSecreta = palabra;
+    this.dificultad = dificultad;
 
     if (dificultad === "facil") this.maxVidas = 8;
     else if (dificultad === "dificil") this.maxVidas = 4;
@@ -82,5 +86,9 @@ static elegirPalabraAleatoria(diccionario: string[], generadorAzar: () => number
   const indiceElegido = Math.floor(generadorAzar() * diccionario.length);
   return diccionario[indiceElegido];
 }
+
+  nivelActual(): string {
+    return this.dificultad;
+  }
 
 }
